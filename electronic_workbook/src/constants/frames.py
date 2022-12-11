@@ -1,1 +1,0 @@
-START_FRAME = "StartFrame"
