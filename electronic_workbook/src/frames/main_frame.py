@@ -87,9 +87,8 @@ class MainFrame(tk.Frame):
                 correct_answer
             )
 
-            questions.append(question)
+            self.questions.append(question)
 
-        self.questions = questions
         self.__show_questions()
 
     def render(self):
