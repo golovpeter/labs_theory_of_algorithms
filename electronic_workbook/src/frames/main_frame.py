@@ -9,16 +9,12 @@ class MainFrame(tk.Frame):
     def __init__(self, root):
         tk.Frame.__init__(self, root)
 
-        self.open_file_flag = False
-
         self.top_menu = tk.Menu(root)
         self.file_menu = tk.Menu(self.top_menu, tearoff=0)
 
         self.file_path = ""
 
-        self.b1 = tk.Button(text="Готово", width=10, height=2, command=self.test)
-
-        self.radio_val = tk.StringVar()
+        self.b1 = tk.Button(text="Готово", width=10, height=2, command=self.__check_results)
 
         self.questions = []
         self.radio_button_answers = []
@@ -37,9 +33,10 @@ class MainFrame(tk.Frame):
             text_var = tk.StringVar()
             text_var.set(self.questions[i].question)
 
-            textEntry = tk.Entry(textvariable=text_var, font='Arial 13', state="disabled", disabledbackground="white",
+            textEntry = tk.Entry(textvariable=text_var, font='Arial 13', justify="center", state="disabled",
+                                 disabledbackground="white",
                                  disabledforeground="black")
-            textEntry.grid(row=row, column=0, padx=12, pady=5)
+            textEntry.pack()
 
             rad_val = tk.StringVar()
             for j in range(len(self.questions[i].answers_array)):
@@ -49,14 +46,12 @@ class MainFrame(tk.Frame):
                 if answer[0] == "_":
                     answer = answer[1:]
 
-                tk.Radiobutton(text=answer, variable=rad_val, value=answer).grid(row=row + j + 1,
-                                                                                 column=0, padx=6,
-                                                                                 pady=5)
-
-                self.b1.grid(row=row + j + 2, column=0, padx=50, pady=10)
+                tk.Radiobutton(text=answer, variable=rad_val, value=answer).pack(pady=5)
                 row += 3
 
             self.radio_button_answers.append(rad_val)
+
+        self.b1.pack()
 
     def __open_file_dialog(self):
         self.file_path = fd.askopenfilename(
@@ -70,39 +65,32 @@ class MainFrame(tk.Frame):
         if self.file_path == () or self.file_path == '':
             return
 
-        with open(self.file_path, "r") as my_file:
-            self.open_file_flag = True
+        my_file = open(self.file_path, 'r').read().splitlines()
 
-            questions = []
+        questions = []
 
-            while True:
-                line = my_file.readline()
+        for line in my_file:
+            splt = line.split(";")
+            answers_array = splt[2:len(splt)]
 
-                if line == "":
+            correct_answer = ""
+
+            for el in answers_array:
+                if el[0] == "_":
+                    correct_answer = el[1:]
                     break
 
-                splt = line.split(";")
+            question = Question(
+                splt[0],
+                splt[1],
+                answers_array,
+                correct_answer
+            )
 
-                answers_array = splt[2:len(splt)]
-                correct_answer = ""
+            questions.append(question)
 
-                for el in answers_array:
-                    if el[0] == "_":
-                        correct_answer = el[1:]
-                        break
-
-                question = Question(
-                    splt[0],
-                    splt[1],
-                    answers_array,
-                    correct_answer
-                )
-
-                questions.append(question)
-
-            self.questions = questions
-
+        self.questions = questions
         self.__show_questions()
 
     def render(self):
-        self.grid()
+        self.pack()
